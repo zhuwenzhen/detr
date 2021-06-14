@@ -27,8 +27,12 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
 
     for samples, targets in metric_logger.log_every(data_loader, print_freq, header):
         samples = samples.to(device)
-        targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
-
+        import pdb; pdb.set_trace()
+        device_id = samples.device.index
+        print("DEVICE ID: ",device_id, "************ TRAIN **********")
+        targets = [{k: v.to(device_id) for k, v in t.items()} for t in targets]
+        
+        model = model.to(device_id)
         outputs = model(samples)
         loss_dict = criterion(outputs, targets)
         weight_dict = criterion.weight_dict
@@ -87,7 +91,13 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
 
     for samples, targets in metric_logger.log_every(data_loader, 10, header):
         samples = samples.to(device)
-        targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+
+        device_id = samples.device.index
+        print("DEVICE ID: ",device_id, "************ VALID **********")
+
+        targets = [{k: v.to(device_id) for k, v in t.items()} for t in targets]
+
+        model = model.to(device_id)
 
         outputs = model(samples)
         loss_dict = criterion(outputs, targets)
